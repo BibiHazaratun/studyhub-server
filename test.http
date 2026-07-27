@@ -1,0 +1,26 @@
+### Test 1: Check server is running
+GET http://localhost:5000
+
+### Test 2: Get all resources (should be empty array)
+GET http://localhost:5000/api/resources
+
+### Test 3: Register a new user
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test Student",
+  "email": "test@puc.edu.bd",
+  "password": "123456",
+  "studentId": "1101220001",
+  "semester": 5
+}
+
+### Test 4: Login with the same user
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@puc.edu.bd",
+  "password": "123456"
+}
