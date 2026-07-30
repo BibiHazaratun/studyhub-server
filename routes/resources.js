@@ -1,4 +1,6 @@
+
 const express = require("express");
+const path = require("path");
 const Resource = require("../models/Resource");
 const User = require("../models/User");
 const { protect } = require("../middleware/auth");
@@ -86,6 +88,26 @@ router.post("/:id/download", async (req, res) => {
     );
     if (!resource) return res.status(404).json({ message: "Resource not found" });
     res.json({ fileUrl: resource.fileUrl });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// @route   GET /api/resources/:id/file  (force download with original filename, works on mobile)
+router.get("/:id/file", async (req, res) => {
+  try {
+    const resource = await Resource.findById(req.params.id);
+    if (!resource) return res.status(404).json({ message: "Resource not found" });
+
+    const filePath = path.join(__dirname, "..", resource.fileUrl);
+    res.download(filePath, resource.originalFileName, (err) => {
+      if (err) {
+        console.error(err);
+        if (!res.headersSent) {
+          res.status(404).json({ message: "File not found on server" });
+        }
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
