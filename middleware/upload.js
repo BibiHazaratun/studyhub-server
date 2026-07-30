@@ -1,6 +1,7 @@
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
+const path = require("path");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -12,17 +13,15 @@ const allowedTypes = [".pdf", ".doc", ".docx", ".ppt", ".pptx", ".jpg", ".png"];
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
-    return {
-      folder: "studyhub_uploads",
-      resource_type: "auto", // allows pdf/doc/ppt/images all
-      public_id: Date.now() + "-" + Math.round(Math.random() * 1e9),
-    };
+  params: {
+    folder: "studyhub_uploads",
+    resource_type: "auto",
+    public_id: (req, file) => Date.now() + "-" + Math.round(Math.random() * 1e9),
   },
 });
 
 const fileFilter = (req, file, cb) => {
-  const ext = require("path").extname(file.originalname).toLowerCase();
+  const ext = path.extname(file.originalname).toLowerCase();
   if (allowedTypes.includes(ext)) {
     cb(null, true);
   } else {
