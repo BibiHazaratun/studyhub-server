@@ -15,6 +15,8 @@ router.post("/", protect, upload.single("file"), async (req, res) => {
       return res.status(400).json({ message: "File is required" });
     }
 
+    console.log("DEBUG req.file:", JSON.stringify(req.file, null, 2));
+
     const resource = await Resource.create({
       title,
       courseCode,
