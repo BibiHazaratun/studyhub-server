@@ -13,14 +13,13 @@ cloudinary.config({
 const allowedTypes = [".pdf", ".doc", ".docx", ".ppt", ".pptx", ".jpg", ".png"];
 
 const storage = cloudinaryStorage({
-  cloudinary: cloudinaryModule,   // ⚠️ eikhane full module pass korte hobe (cloudinary, na cloudinary.v2)
+  cloudinary: cloudinary,
   folder: "studyhub_uploads",
-  resource_type: "auto",
+  resource_type: "raw",   // ⚠️ "auto" theke "raw" e change koro
   filename: (req, file, cb) => {
     cb(undefined, Date.now() + "-" + Math.round(Math.random() * 1e9));
   },
 });
-
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
   if (allowedTypes.includes(ext)) {
