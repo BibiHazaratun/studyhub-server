@@ -1,7 +1,7 @@
 const multer = require("multer");
 const cloudinaryStorage = require("multer-storage-cloudinary");
-const cloudinaryModule = require("cloudinary");   // ⚠️ full module, .v2 NA
-const cloudinary = cloudinaryModule.v2;             // config korার jonno alada variable
+const cloudinaryModule = require("cloudinary");
+const cloudinary = cloudinaryModule.v2;
 const path = require("path");
 
 cloudinary.config({
@@ -13,13 +13,14 @@ cloudinary.config({
 const allowedTypes = [".pdf", ".doc", ".docx", ".ppt", ".pptx", ".jpg", ".png"];
 
 const storage = cloudinaryStorage({
-  cloudinary: cloudinary,
+  cloudinary: cloudinaryModule,
   folder: "studyhub_uploads",
-  resource_type: "raw",   // ⚠️ "auto" theke "raw" e change koro
+  resource_type: "raw",
   filename: (req, file, cb) => {
     cb(undefined, Date.now() + "-" + Math.round(Math.random() * 1e9));
   },
 });
+
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
   if (allowedTypes.includes(ext)) {
@@ -32,7 +33,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 15 * 1024 * 1024 }, // 15MB max
+  limits: { fileSize: 15 * 1024 * 1024 },
 });
 
 module.exports = upload;
