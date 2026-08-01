@@ -129,3 +129,13 @@ router.delete("/:id", protect, async (req, res) => {
 
     if (resource.uploader.toString() !== req.user._id.toString() && req.user.role !== "admin") {
       return res.status(403).json({ message: "Not authorized to delete this resource" });
+    }
+
+    await resource.deleteOne();
+    res.json({ message: "Resource deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+module.exports = router;
