@@ -15,8 +15,6 @@ router.post("/", protect, upload.single("file"), async (req, res) => {
       return res.status(400).json({ message: "File is required" });
     }
 
-    console.log("DEBUG req.file:", JSON.stringify(req.file, null, 2));
-
     const resource = await Resource.create({
       title,
       courseCode,
@@ -24,7 +22,7 @@ router.post("/", protect, upload.single("file"), async (req, res) => {
       semester,
       type,
       tags: tags ? tags.split(",").map((t) => t.trim()) : [],
-      fileUrl: req.file.path,
+      fileUrl: req.file.secure_url || req.file.path,
       originalFileName: req.file.originalname,
       uploader: req.user._id,
     });
@@ -131,13 +129,3 @@ router.delete("/:id", protect, async (req, res) => {
 
     if (resource.uploader.toString() !== req.user._id.toString() && req.user.role !== "admin") {
       return res.status(403).json({ message: "Not authorized to delete this resource" });
-    }
-
-    await resource.deleteOne();
-    res.json({ message: "Resource deleted" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-module.exports = router;
