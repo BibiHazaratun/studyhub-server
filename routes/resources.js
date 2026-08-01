@@ -3,8 +3,22 @@ const Resource = require("../models/Resource");
 const User = require("../models/User");
 const { protect } = require("../middleware/auth");
 const upload = require("../middleware/upload");
+const cloudinary = require("../config/cloudinary");
 
 const router = express.Router();
+
+const streamUpload = (buffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "studyhub_uploads", resource_type: "raw" },
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      }
+    );
+    stream.end(buffer);
+  });
+};
 
 // @route   POST /api/resources  (upload new resource)
 router.post("/", protect, upload.single("file"), async (req, res) => {
@@ -15,6 +29,8 @@ router.post("/", protect, upload.single("file"), async (req, res) => {
       return res.status(400).json({ message: "File is required" });
     }
 
+    const result = await streamUpload(req.file.buffer);
+
     const resource = await Resource.create({
       title,
       courseCode,
@@ -22,7 +38,7 @@ router.post("/", protect, upload.single("file"), async (req, res) => {
       semester,
       type,
       tags: tags ? tags.split(",").map((t) => t.trim()) : [],
-      fileUrl: req.file.secure_url || req.file.path,
+      fileUrl: result.secure_url,
       originalFileName: req.file.originalname,
       uploader: req.user._id,
     });
