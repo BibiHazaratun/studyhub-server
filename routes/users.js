@@ -32,5 +32,20 @@ router.put("/:id/ban", protect, adminOnly, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+// @route   PUT /api/users/:id/reset-password  (admin only)
+router.put("/:id/reset-password", protect, adminOnly, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const newPassword = Math.random().toString(36).slice(-8);
+    user.password = newPassword; // pre-save hook will hash it
+    await user.save();
+
+    res.json({ message: "Password reset successfully", newPassword });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;
