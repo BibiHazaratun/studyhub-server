@@ -41,6 +41,10 @@ const userSchema = new mongoose.Schema(
       enum: ["student", "admin"],
       default: "student",
     },
+    banned: {
+      type: Boolean,
+      default: false,
+    },
     points: {
       type: Number,
       default: 0, // for leaderboard/gamification later

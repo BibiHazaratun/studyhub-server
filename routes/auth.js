@@ -49,6 +49,10 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
+    if (user.banned) {
+      return res.status(403).json({ message: "Your account has been banned. Contact admin for details." });
+    }
+
     res.json({
       _id: user._id,
       name: user.name,

@@ -7,6 +7,7 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const resourceRoutes = require("./routes/resources");
 const commentRoutes = require("./routes/comments");
+const userRoutes = require("./routes/users");
 
 connectDB();
 
@@ -18,6 +19,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/resources", resourceRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/comments", commentRoutes);
 
 app.get("/", (req, res) => {
