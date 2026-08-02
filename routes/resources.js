@@ -140,6 +140,32 @@ router.post("/:id/rate", protect, async (req, res) => {
   }
 });
 
+// @route   PUT /api/resources/:id  (only uploader can edit)
+router.put("/:id", protect, async (req, res) => {
+  try {
+    const resource = await Resource.findById(req.params.id);
+    if (!resource) return res.status(404).json({ message: "Resource not found" });
+
+    if (resource.uploader.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to edit this resource" });
+    }
+
+    const { title, courseCode, courseName, semester, type, tags } = req.body;
+
+    if (title !== undefined) resource.title = title;
+    if (courseCode !== undefined) resource.courseCode = courseCode;
+    if (courseName !== undefined) resource.courseName = courseName;
+    if (semester !== undefined) resource.semester = semester;
+    if (type !== undefined) resource.type = type;
+    if (tags !== undefined) resource.tags = tags.split(",").map((t) => t.trim());
+
+    await resource.save();
+    res.json(resource);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // @route   DELETE /api/resources/:id  (only uploader or admin)
 router.delete("/:id", protect, async (req, res) => {
   try {
