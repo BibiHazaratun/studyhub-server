@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       trim: true,
+      match: [/^\d{16}$/, "Student ID must be exactly 16 digits"],
     },
     department: {
       type: String,
