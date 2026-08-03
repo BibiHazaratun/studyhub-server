@@ -37,9 +37,9 @@ const userSchema = new mongoose.Schema(
       min: 1,
       max: 8,
     },
-    role: {
+   role: {
       type: String,
-      enum: ["student", "admin"],
+      enum: ["student", "moderator", "admin"],
       default: "student",
     },
     banned: {
