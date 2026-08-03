@@ -33,5 +33,12 @@ const adminOnly = (req, res, next) => {
     res.status(403).json({ message: "Admin access required" });
   }
 };
+const staffOnly = (req, res, next) => {
+  if (req.user && (req.user.role === "admin" || req.user.role === "moderator")) {
+    next();
+  } else {
+    res.status(403).json({ message: "Staff access required" });
+  }
+};
 
-module.exports = { protect, adminOnly };
+module.exports = { protect, adminOnly, staffOnly };
