@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
@@ -38,7 +37,7 @@ const userSchema = new mongoose.Schema(
       min: 1,
       max: 8,
     },
-   role: {
+    role: {
       type: String,
       enum: ["student", "moderator", "admin"],
       default: "student",
@@ -51,14 +50,13 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0, // for leaderboard/gamification later
     },
-
-  },
-  resetPasswordToken: {
+    resetPasswordToken: {
       type: String,
     },
     resetPasswordExpires: {
       type: Date,
     },
+  },
   { timestamps: true }
 );
 
