@@ -104,15 +104,8 @@ router.post("/reset-password/:token", async (req, res) => {
   try {
     const { password } = req.body;
 
-    console.log("DEBUG - Token received:", req.params.token);
-    console.log("DEBUG - Current time:", Date.now());
-
-    const userCheck = await User.findOne({ resetPasswordToken: req.params.token });
-    console.log("DEBUG - User found by token (ignoring expiry):", userCheck ? userCheck.email : "NOT FOUND");
-    if (userCheck) {
-      console.log("DEBUG - Stored expiry:", userCheck.resetPasswordExpires);
-      console.log("DEBUG - Is expired?", userCheck.resetPasswordExpires < Date.now());
-    }
+    
+    
 
     const user = await User.findOne({
       resetPasswordToken: req.params.token,

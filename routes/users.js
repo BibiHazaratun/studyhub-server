@@ -38,24 +38,7 @@ router.put("/:id/ban", protect, staffOnly, async (req, res) => {
 });
 
 // @route   PUT /api/users/:id/reset-password  (admin + moderator — but only on students)
-router.put("/:id/reset-password", protect, staffOnly, async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (req.user.role === "moderator" && user.role !== "student") {
-      return res.status(403).json({ message: "Moderators can only reset student passwords" });
-    }
-
-    const newPassword = Math.random().toString(36).slice(-8);
-    user.password = newPassword;
-    await user.save();
-
-    res.json({ message: "Password reset successfully", newPassword });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
 // @route   PUT /api/users/:id/role  (admin only — promote/demote)
 router.put("/:id/role", protect, adminOnly, async (req, res) => {
