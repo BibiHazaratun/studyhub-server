@@ -1,7 +1,9 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const User = require("../models/User");
 const { protect } = require("../middleware/auth");
+const { sendResetEmail } = require("../config/email");
 
 const router = express.Router();
 
@@ -72,8 +74,6 @@ router.post("/login", async (req, res) => {
 router.get("/me", protect, async (req, res) => {
   res.json(req.user);
 });
-const crypto = require("crypto");
-const { sendResetEmail } = require("../config/email");
 
 // @route   POST /api/auth/forgot-password
 router.post("/forgot-password", async (req, res) => {
@@ -81,14 +81,13 @@ router.post("/forgot-password", async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
 
-    // Always respond the same way, even if user not found (avoid leaking which emails exist)
     if (!user) {
       return res.json({ message: "If that email exists, a reset link has been sent." });
     }
 
     const token = crypto.randomBytes(32).toString("hex");
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
+    user.resetPasswordExpires = Date.now() + 30 * 60 * 1000;
     await user.save();
 
     const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
@@ -104,6 +103,17 @@ router.post("/forgot-password", async (req, res) => {
 router.post("/reset-password/:token", async (req, res) => {
   try {
     const { password } = req.body;
+
+    console.log("DEBUG - Token received:", req.params.token);
+    console.log("DEBUG - Current time:", Date.now());
+
+    const userCheck = await User.findOne({ resetPasswordToken: req.params.token });
+    console.log("DEBUG - User found by token (ignoring expiry):", userCheck ? userCheck.email : "NOT FOUND");
+    if (userCheck) {
+      console.log("DEBUG - Stored expiry:", userCheck.resetPasswordExpires);
+      console.log("DEBUG - Is expired?", userCheck.resetPasswordExpires < Date.now());
+    }
+
     const user = await User.findOne({
       resetPasswordToken: req.params.token,
       resetPasswordExpires: { $gt: Date.now() },
