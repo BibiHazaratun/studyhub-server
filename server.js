@@ -29,7 +29,14 @@ app.get("/", (req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: "Something went wrong on the server" });
+
+  // Known/expected validation errors — safe to show to the user
+  if (err.name === "ValidationError" || err.message?.includes("not allowed")) {
+    return res.status(400).json({ message: err.message });
+  }
+
+  // Unexpected/internal errors — hide details from the user
+  res.status(500).json({ message: "Something went wrong on the server. Please try again." });
 });
 
 const PORT = process.env.PORT || 5000;
