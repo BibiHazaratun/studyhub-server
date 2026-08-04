@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
@@ -50,7 +51,14 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0, // for leaderboard/gamification later
     },
+
   },
+  resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpires: {
+      type: Date,
+    },
   { timestamps: true }
 );
 

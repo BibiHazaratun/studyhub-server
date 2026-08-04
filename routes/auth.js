@@ -72,5 +72,56 @@ router.post("/login", async (req, res) => {
 router.get("/me", protect, async (req, res) => {
   res.json(req.user);
 });
+const crypto = require("crypto");
+const { sendResetEmail } = require("../config/email");
+
+// @route   POST /api/auth/forgot-password
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    // Always respond the same way, even if user not found (avoid leaking which emails exist)
+    if (!user) {
+      return res.json({ message: "If that email exists, a reset link has been sent." });
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
+    await user.save();
+
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
+    await sendResetEmail(user.email, resetLink);
+
+    res.json({ message: "If that email exists, a reset link has been sent." });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// @route   POST /api/auth/reset-password/:token
+router.post("/reset-password/:token", async (req, res) => {
+  try {
+    const { password } = req.body;
+    const user = await User.findOne({
+      resetPasswordToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Reset link is invalid or has expired." });
+    }
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.json({ message: "Password reset successfully. You can now sign in." });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;
